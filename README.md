@@ -4,6 +4,7 @@
 ```
 bash <(curl -fsSL https://raw.githubusercontent.com/Ptechgithub/Hamster-Auto-buy-BestCard/main/install.sh)
 ```
+![29](https://raw.githubusercontent.com/Ptechgithub/configs/main/media/29.jpg)
 ---
 How to Run hamster in Browser:
 
