@@ -138,7 +138,7 @@ main() {
                     wait_for_cooldown "$cooldown"
                 else
                     echo -e "${green}Upgrade ${yellow}'$best_item_id'${green} purchased successfully.${rest}"
-                    echo -e "${green}Waiting 5 seconds before next purchase...${rest}"
+                    echo -e "${green}Waiting 8 seconds before next purchase...${rest}"
                     sleep 8  # Wait for 8 seconds after a successful purchase
                 fi
             else
