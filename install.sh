@@ -125,8 +125,8 @@ main() {
             -H "Referer: https://hamsterkombat.io/" \
             https://api.hamsterkombat.io/clicker/sync | jq -r '.clickerUser.balanceCoins')
 
-        # Check if current balance is above the threshold
-        if (( $(echo "$current_balance > $min_balance_threshold" | bc -l) )); then
+        # Check if current balance is above the threshold after purchase
+        if (( $(echo "$current_balance - $price > $min_balance_threshold" | bc -l) )); then
             # Attempt to purchase the best upgrade item
             if [ -n "$best_item_id" ]; then
                 echo -e "${green}Attempting to purchase upgrade '${yellow}$best_item_id${green}'...${rest}"
@@ -146,7 +146,7 @@ main() {
                 break
             fi
         else
-            echo -e "${red}Current balance ${cyan}(${current_balance}) ${red}is below the threshold ${cyan}(${min_balance_threshold})${red}. Stopping purchases.${rest}"
+            echo -e "${red}Current balance ${cyan}(${current_balance}) ${red}minus price of item ${cyan}(${price}) ${red}is below the threshold ${cyan}(${min_balance_threshold})${red}. Stopping purchases.${rest}"
             break
         fi
     done
