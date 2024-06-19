@@ -139,7 +139,7 @@ main() {
                 else
                     echo -e "${green}Upgrade ${yellow}'$best_item_id'${green} purchased successfully.${rest}"
                     echo -e "${green}Waiting 5 seconds before next purchase...${rest}"
-                    sleep 5  # Wait for 5 seconds after a successful purchase
+                    sleep 8  # Wait for 8 seconds after a successful purchase
                 fi
             else
                 echo -e "${red}No valid item found to buy.${rest}"
