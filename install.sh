@@ -91,7 +91,7 @@ get_best_item() {
         -H "Sec-Fetch-Mode: cors" \
         -H "Sec-Fetch-Site: same-site" \
         -H "Priority: u=4" \
-        https://api.hamsterkombat.io/clicker/upgrades-for-buy | jq -r '.upgradesForBuy | map(select(.isExpired == false and .isAvailable)) | map(select(.profitPerHour != 0 and .price != 0)) | sort_by(-(.profitPerHour / .price))[:1] | .[0] | {id: .id, section: .section, price: .price, profitPerHour: .profitPerHour, cooldownSeconds: .cooldownSeconds}'
+        https://api.hamsterkombat.io/clicker/upgrades-for-buy | jq -r '.upgradesForBuy | map(select(.isExpired == false and .isAvailable)) | map(select(.profitPerHourDelta != 0 and .price != 0)) | sort_by(-(.profitPerHourDelta / .price))[:1] | .[0] | {id: .id, section: .section, price: .price, profitPerHourDelta: .profitPerHourDelta, cooldownSeconds: .cooldownSeconds}'
 }
 
 # Function to wait for cooldown period
@@ -109,7 +109,7 @@ main() {
         best_item_id=$(echo "$best_item" | jq -r '.id')
         section=$(echo "$best_item" | jq -r '.section')
         price=$(echo "$best_item" | jq -r '.price')
-        profit=$(echo "$best_item" | jq -r '.profitPerHour')
+        profit=$(echo "$best_item" | jq -r '.profitPerHourDelta')
         cooldown=$(echo "$best_item" | jq -r '.cooldownSeconds')
 
         echo -e "${purple}============================${rest}"
