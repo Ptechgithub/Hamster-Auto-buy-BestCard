@@ -86,7 +86,7 @@ while true; do
         continue
     fi
 
-    random_sleep=$(shuf -i 20-30 -n 1)
+    random_sleep=$(shuf -i 20-60 -n 1)
     sleep $(echo "scale=3; $random_sleep / 1000" | bc)
 
     curl -s -X POST https://api.hamsterkombat.io/clicker/tap \
