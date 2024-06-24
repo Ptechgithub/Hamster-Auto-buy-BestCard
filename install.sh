@@ -55,7 +55,7 @@ install_packages
 clear
 
 # Prompt for Authorization
-echo -e "${purple}============================${rest}"
+echo -e "${purple}=======${yellow} Hamster Combat Auto Buy best cards${purple}=======${rest}"
 echo -en "${green}Enter Authorization [${cyan}Example: ${yellow}Bearer 171852....${green}]: ${rest}"
 read -r Authorization
 echo -e "${purple}============================${rest}"
