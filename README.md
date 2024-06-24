@@ -1,8 +1,13 @@
 # Hamster-Auto-buy-BestCard
 
-## Install
+## Auto buy
 ```
 bash <(curl -fsSL https://raw.githubusercontent.com/Ptechgithub/Hamster-Auto-buy-BestCard/main/install.sh)
+```
+
+### Auto Clicker
+```
+bash <(curl -fsSL https://raw.githubusercontent.com/Ptechgithub/Hamster-Auto-buy-BestCard/main/clicker.sh)
 ```
 ![29](https://raw.githubusercontent.com/Ptechgithub/configs/main/media/29.jpg)
 ---
