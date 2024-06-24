@@ -1,4 +1,4 @@
-# Hamster-Auto-buy-BestCard
+# Hamster-Auto-buy-BestCard & AutoClicker
 
 ## Auto buy
 ```
