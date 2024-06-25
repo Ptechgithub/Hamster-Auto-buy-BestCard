@@ -133,13 +133,11 @@ def knapsack(upgrades, max_budget):
 
 upgrades = [
     item for item in response["upgradesForBuy"]
-    if not item["isExpired"] and item["isAvailable"]
+    if not item["isExpired"] and item["isAvailable"] and item["price"] > 0
 ]
 
 upgrades_with_ratios = []
 for item in upgrades:
-    if item["price"] < 1000000:
-        continue
     max_budget = item["price"]
     max_profit, selected_upgrades = knapsack(upgrades, max_budget)
     if max_profit > item["profitPerHourDelta"] and item["profitPerHourDelta"] and max_profit > 10000:
