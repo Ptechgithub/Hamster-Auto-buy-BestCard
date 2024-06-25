@@ -43,7 +43,6 @@ install_packages() {
             sudo dnf install "${missing_packages[@]}" -y
         else
             echo -e "${yellow}Unsupported package manager. Please install required packages manually.${rest}"
-            exit 1
         fi
     fi
 }
