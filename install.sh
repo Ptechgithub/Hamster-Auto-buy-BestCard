@@ -64,6 +64,10 @@ echo -e "${purple}============================${rest}"
 echo -en "${green}Enter minimum balance threshold (${yellow}the script will stop purchasing if the balance is below this amount${green}):${rest} "
 read -r min_balance_threshold
 
+# Variables to keep track of total spent and total profit
+total_spent=0
+total_profit=0
+
 # Function to purchase upgrade
 purchase_upgrade() {
     upgrade_id="$1"
@@ -94,11 +98,15 @@ get_best_item() {
         https://api.hamsterkombat.io/clicker/upgrades-for-buy | jq -r '.upgradesForBuy | map(select(.isExpired == false and .isAvailable)) | map(select(.profitPerHourDelta != 0 and .price != 0)) | sort_by(-(.profitPerHourDelta / .price))[:1] | .[0] | {id: .id, section: .section, price: .price, profitPerHourDelta: .profitPerHourDelta, cooldownSeconds: .cooldownSeconds}'
 }
 
-# Function to wait for cooldown period
+# Function to wait for cooldown period with countdown
 wait_for_cooldown() {
     cooldown_seconds="$1"
     echo -e "${yellow}Upgrade is on cooldown. Waiting for cooldown period of ${cyan}$cooldown_seconds${yellow} seconds...${rest}"
-    sleep "$cooldown_seconds"
+    while [ $cooldown_seconds -gt 0 ]; do
+        echo -ne "${cyan}$cooldown_seconds\033[0K\r"
+        sleep 1
+        ((cooldown_seconds--))
+    done
 }
 
 # Main script logic
@@ -137,10 +145,23 @@ main() {
                 if echo "$purchase_status" | grep -q "error_code"; then
                     wait_for_cooldown "$cooldown"
                 else
-                    echo -e "${green}Upgrade ${yellow}'$best_item_id'${green} purchased successfully.${rest}"
+                    purchase_time=$(date +"%Y-%m-%d %H:%M:%S")
+                    total_spent=$(echo "$total_spent + $price" | bc)
+                    total_profit=$(echo "$total_profit + $profit" | bc)
+                    current_balance=$(echo "$current_balance - $price" | bc)
+
+                    echo -e "${green}Upgrade ${yellow}'$best_item_id'${green} purchased successfully at ${cyan}$purchase_time${green}.${rest}"
+                    echo -e "${green}Total spent so far: ${cyan}$total_spent${green} coins.${rest}"
+                    echo -e "${green}Total profit added: ${cyan}$total_profit${green} coins per hour.${rest}"
+                    echo -e "${green}Current balance: ${cyan}$current_balance${green} coins.${rest}"
+                    
                     sleep_duration=$((RANDOM % 8 + 5))
                     echo -e "${green}Waiting for ${yellow}$sleep_duration${green} seconds before next purchase...${rest}"
-                    sleep "$sleep_duration"
+                    while [ $sleep_duration -gt 0 ]; do
+                        echo -ne "${cyan}$sleep_duration\033[0K\r"
+                        sleep 1
+                        ((sleep_duration--))
+                    done
                 fi
             else
                 echo -e "${red}No valid item found to buy.${rest}"
