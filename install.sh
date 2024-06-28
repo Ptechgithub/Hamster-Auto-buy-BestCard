@@ -95,7 +95,7 @@ get_best_item() {
         -H "Sec-Fetch-Mode: cors" \
         -H "Sec-Fetch-Site: same-site" \
         -H "Priority: u=4" \
-        https://api.hamsterkombat.io/clicker/upgrades-for-buy | jq -r '.upgradesForBuy | map(select(.isExpired == false and .isAvailable)) | map(select(.profitPerHourDelta != 0 and .price != 0)) | sort_by(-(.profitPerHourDelta / .price))[:1] | .[0] | {id: .id, section: .section, price: .price, profitPerHourDelta: .profitPerHourDelta, cooldownSeconds: .cooldownSeconds}'
+        https://api.hamsterkombat.io/clicker/upgrades-for-buy | jq -r '.upgradesForBuy | map(select(.isExpired == false and .isAvailable)) | map(select(.profitPerHourDelta != 0 and .price != 0)) | sort_by(-(.profitPerHourDelta / .price))[:3] | .[0] | {id: .id, section: .section, price: .price, profitPerHourDelta: .profitPerHourDelta, cooldownSeconds: .cooldownSeconds}'
 }
 
 # Function to wait for cooldown period with countdown
@@ -109,16 +109,46 @@ wait_for_cooldown() {
     done
 }
 
+# Verify the best item
+verify_best_item() {
+    local best_item_id=$1
+    local best_item_section=$2
+    local best_item_price=$3
+    local best_item_profit=$4
+    local best_item_cooldown=$5
+    local next_item_id=$6
+    local next_item_section=$7
+    local next_item_price=$8
+    local next_item_profit=$9
+
+    # Compare adjusted profit per hour delta and cooldown status
+    if [ $best_item_cooldown -gt 0 ] || (( ($best_item_profit / $best_item_price) * 0.9 < $next_item_profit )); then
+        echo "Upgrade the second item."
+    else
+        echo "Upgrade the first item."
+    fi
+}
+
 # Main script logic
 main() {
     while true; do
         # Get the best item to buy
         best_item=$(get_best_item)
         best_item_id=$(echo "$best_item" | jq -r '.id')
-        section=$(echo "$best_item" | jq -r '.section')
-        price=$(echo "$best_item" | jq -r '.price')
-        profit=$(echo "$best_item" | jq -r '.profitPerHourDelta')
-        cooldown=$(echo "$best_item" | jq -r '.cooldownSeconds')
+        best_item_section=$(echo "$best_item" | jq -r '.section')
+        best_item_price=$(echo "$best_item" | jq -r '.price')
+        best_item_profit=$(echo "$best_item" | jq -r '.profitPerHourDelta')
+        best_item_cooldown=$(echo "$best_item" | jq -r '.cooldownSeconds')
+
+        # Get the second item
+        next_item=$(echo "$best_item" | jq -r '.nextItem | {id:.id, section:.section, price:.price, profitPerHourDelta:.profitPerHourDelta}')
+        next_item_id=$(echo "$next_item" | jq -r '.id')
+        next_item_section=$(echo "$next_item" | jq -r '.section')
+        next_item_price=$(echo "$next_item" | jq -r '.price')
+        next_item_profit=$(echo "$next_item" | jq -r '.profitPerHourDelta')
+
+        # Verify the best item
+        verify_best_item "$best_item_id" "$best_item_section" "$best_item_price" "$best_item_profit" "$best_item_cooldown" "$next_item_id" "$next_item_section" "$next_item_price" "$next_item_profit"
 
         echo -e "${purple}============================${rest}"
         echo -e "${green}Best item to buy:${yellow} $best_item_id ${green}in section:${yellow} $section${rest}"
