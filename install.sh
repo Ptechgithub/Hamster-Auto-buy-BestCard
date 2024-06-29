@@ -162,26 +162,27 @@ main() {
     while true; do
         # Get the best item to buy
         best_item=$(get_best_item)
-        echo $best_item
         best_item_id=$(echo "$best_item" | jq -r '.id')
         section=$(echo "$best_item" | jq -r '.section')
         price=$(echo "$best_item" | jq -r '.price')
         profit=$(echo "$best_item" | jq -r '.profitPerHourDelta')
         cooldown=$(echo "$best_item" | jq -r '.cooldownSeconds')
+        echo -e "${blue}The best item to buy:${yellow} $best_item_id${rest}"
 
         # Get the second item
         second_item=$(get_second_best_item)
-        echo $second_item
+        
         next_item_id=$(echo "$second_item" | jq -r '.id')
         next_item_section=$(echo "$second_item" | jq -r '.section')
         next_item_price=$(echo "$second_item" | jq -r '.price')
         next_item_profit=$(echo "$second_item" | jq -r '.profitPerHourDelta')
         next_item_cooldown=$(echo "$best_item" | jq -r '.cooldownSeconds')
+        echo -e "${blue}The Second best item to buy:${yellow} $next_item_id${rest}"
 
         # Use the choose function to determine the best set of values
         result=$(choose $best_item_id $section $price $profit $cooldown $next_item_id $next_item_section $next_item_price $next_item_profit $next_item_cooldown)
         
-        echo "$result"
+        echo -e "${blue}The best product that can be bought to save time:${yellow} $result${rest}"
 
         if [ "$result" == "$next_item_id" ]; then
             best_item_id="$next_item_id"
@@ -229,7 +230,7 @@ main() {
                     sleep_duration=$((RANDOM % 8 + 5))
                     echo -e "${green}Waiting for ${yellow}$sleep_duration${green} seconds before next purchase...${rest}"
                     while [ $sleep_duration -gt 0 ]; do
-                        echo -ne "${cyan}$sleep_duration\033[0K\r"
+                        echo -ne "${cyan}$sleep_duration\033[0K\r${rest}"
                         sleep 1
                         ((sleep_duration--))
                     done
