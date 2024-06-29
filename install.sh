@@ -95,8 +95,24 @@ get_best_item() {
         -H "Sec-Fetch-Mode: cors" \
         -H "Sec-Fetch-Site: same-site" \
         -H "Priority: u=4" \
-        https://api.hamsterkombat.io/clicker/upgrades-for-buy | jq -r '.upgradesForBuy | map(select(.isExpired == false and .isAvailable)) | map(select(.profitPerHourDelta != 0 and .price != 0)) | sort_by(-(.profitPerHourDelta / .price))[:3] | .[0] | {id: .id, section: .section, price: .price, profitPerHourDelta: .profitPerHourDelta, cooldownSeconds: .cooldownSeconds}'
+        https://api.hamsterkombat.io/clicker/upgrades-for-buy | jq -r '.upgradesForBuy | map(select(.isExpired == false and .isAvailable)) | map(select(.profitPerHourDelta != 0 and .price != 0)) | sort_by(-(.profitPerHourDelta / .price))[:1] | .[0] | {id: .id, section: .section, price: .price, profitPerHourDelta: .profitPerHourDelta, cooldownSeconds: .cooldownSeconds}'
 }
+
+get_second_best_item() {
+    curl -s -X POST -H "User-Agent: Mozilla/5.0 (Android 12; Mobile; rv:102.0) Gecko/102.0 Firefox/102.0" \
+        -H "Accept: */*" \
+        -H "Accept-Language: en-US,en;q=0.5" \
+        -H "Referer: https://hamsterkombat.io/" \
+        -H "Authorization: $Authorization" \
+        -H "Origin: https://hamsterkombat.io" \
+        -H "Connection: keep-alive" \
+        -H "Sec-Fetch-Dest: empty" \
+        -H "Sec-Fetch-Mode: cors" \
+        -H "Sec-Fetch-Site: same-site" \
+        -H "Priority: u=4" \
+        https://api.hamsterkombat.io/clicker/upgrades-for-buy | jq -r '.upgradesForBuy | map(select(.isExpired == false and.isAvailable)) | map(select(.profitPerHourDelta!= 0 and.price!= 0)) | sort_by(-(.profitPerHourDelta /.price))[:2] |.[1] | {id:.id, section:.section, price:.price, profitPerHourDelta:.profitPerHourDelta, cooldownSeconds:.cooldownSeconds}'
+}
+
 
 # Function to wait for cooldown period with countdown
 wait_for_cooldown() {
@@ -110,45 +126,70 @@ wait_for_cooldown() {
 }
 
 # Verify the best item
-verify_best_item() {
+# Function to choose between two sets of values
+choose() {
     local best_item_id=$1
-    local best_item_section=$2
-    local best_item_price=$3
-    local best_item_profit=$4
-    local best_item_cooldown=$5
-    local next_item_id=$6
-    local next_item_section=$7
-    local next_item_price=$8
-    local next_item_profit=$9
+    local section=$2 
+    local price=$3 
+    local profit=$4 
+    local cooldown=$5 
+    local next_item_id=$6 
+    local next_item_section=$7 
+    local next_item_price=$8 
+    local next_item_profit=$9 
+    local next_item_cooldown=$10
 
-    # Compare adjusted profit per hour delta and cooldown status
-    if [ $best_item_cooldown -gt 0 ] || (( ($best_item_profit / $best_item_price) * 0.9 < $next_item_profit )); then
-        echo "Upgrade the second item."
+    # Calculate the ratios
+    left_side=$(echo "1.1 * ($price/$profit)" | bc -l) # Assuming best_price and best_profit are meant to be price and profit
+    right_side=$(echo "$next_item_price/$next_item_profit" | bc -l) # Assuming next_price and next_item_profit are meant to be next_item_price and next_item_profit
+
+    if [[ -z "$cooldown" || "$cooldown" -eq 0 ]]; then
+        echo "$best_item_id"
+    elif [[ -n "$next_item_cooldown" ]] && [[ "$next_item_cooldown" -ne 0 ]]; then
+        echo "$best_item_id"
+    elif (( $(echo "$left_side > $right_side" | bc -l) )); then
+        echo "$next_item_id"
     else
-        echo "Upgrade the first item."
+        echo "$best_item_id"
     fi
 }
+
+
+
 
 # Main script logic
 main() {
     while true; do
         # Get the best item to buy
         best_item=$(get_best_item)
+        echo $best_item
         best_item_id=$(echo "$best_item" | jq -r '.id')
-        best_item_section=$(echo "$best_item" | jq -r '.section')
-        best_item_price=$(echo "$best_item" | jq -r '.price')
-        best_item_profit=$(echo "$best_item" | jq -r '.profitPerHourDelta')
-        best_item_cooldown=$(echo "$best_item" | jq -r '.cooldownSeconds')
+        section=$(echo "$best_item" | jq -r '.section')
+        price=$(echo "$best_item" | jq -r '.price')
+        profit=$(echo "$best_item" | jq -r '.profitPerHourDelta')
+        cooldown=$(echo "$best_item" | jq -r '.cooldownSeconds')
 
         # Get the second item
-        next_item=$(echo "$best_item" | jq -r '.nextItem | {id:.id, section:.section, price:.price, profitPerHourDelta:.profitPerHourDelta}')
-        next_item_id=$(echo "$next_item" | jq -r '.id')
-        next_item_section=$(echo "$next_item" | jq -r '.section')
-        next_item_price=$(echo "$next_item" | jq -r '.price')
-        next_item_profit=$(echo "$next_item" | jq -r '.profitPerHourDelta')
+        second_item=$(get_second_best_item)
+        echo $second_item
+        next_item_id=$(echo "$second_item" | jq -r '.id')
+        next_item_section=$(echo "$second_item" | jq -r '.section')
+        next_item_price=$(echo "$second_item" | jq -r '.price')
+        next_item_profit=$(echo "$second_item" | jq -r '.profitPerHourDelta')
+        next_item_cooldown=$(echo "$best_item" | jq -r '.cooldownSeconds')
 
-        # Verify the best item
-        verify_best_item "$best_item_id" "$best_item_section" "$best_item_price" "$best_item_profit" "$best_item_cooldown" "$next_item_id" "$next_item_section" "$next_item_price" "$next_item_profit"
+        # Use the choose function to determine the best set of values
+        result=$(choose $best_item_id $section $price $profit $cooldown $next_item_id $next_item_section $next_item_price $next_item_profit $next_item_cooldown)
+        
+        echo "$result"
+
+        if [ "$result" == "$next_item_id" ]; then
+            best_item_id="$next_item_id"
+            section="$next_item_section"
+            price="$next_item_price"
+            profit="$next_item_profit"
+            cooldown="$next_item_cooldown"
+        fi
 
         echo -e "${purple}============================${rest}"
         echo -e "${green}Best item to buy:${yellow} $best_item_id ${green}in section:${yellow} $section${rest}"
