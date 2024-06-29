@@ -145,7 +145,7 @@ choose() {
 
     if [[ -z "$cooldown" || "$cooldown" -eq 0 ]]; then
         echo "$best_item_id"
-    elif [[ -n "$next_item_cooldown" ]] && [[ "$next_item_cooldown" -ne 0 ]]; then
+    elif [[ -v next_item_cooldown && -n "$next_item_cooldown" && "$next_item_cooldown" -ne 0 ]]; then
         echo "$best_item_id"
     elif (( $(echo "$left_side > $right_side" | bc -l) )); then
         echo "$next_item_id"
