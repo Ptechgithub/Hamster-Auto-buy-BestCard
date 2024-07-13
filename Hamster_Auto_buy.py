@@ -190,6 +190,7 @@ for best_item in selected_upgrades:
 
         if 'error_code' in purchase_status:
             wait_for_cooldown(cooldown)
+            purchase_upgrade(authorization, best_item_id)
         else:
             print(f"{Colors.GREEN}Upgrade '{Colors.YELLOW}{best_item_id}{Colors.GREEN}' purchased successfully.{Colors.RESET}")
             print(f"{Colors.GREEN}Waiting 8 seconds before next purchase...{Colors.RESET}")
