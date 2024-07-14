@@ -83,7 +83,7 @@ purchase_upgrade() {
       -H "Origin: https://hamsterkombat.io" \
       -H "Referer: https://hamsterkombat.io/" \
       -d "{\"upgradeId\": \"$upgrade_id\", \"timestamp\": $timestamp}" \
-      https://api.hamsterkombat.io/clicker/buy-upgrade)
+      https://api.hamsterkombatgame.io/clicker/buy-upgrade)
     echo "$response"
 }
 
@@ -100,7 +100,7 @@ get_best_item() {
         -H "Sec-Fetch-Mode: cors" \
         -H "Sec-Fetch-Site: same-site" \
         -H "Priority: u=4" \
-        https://api.hamsterkombat.io/clicker/upgrades-for-buy | jq -r '.upgradesForBuy | map(select(.isExpired == false and .isAvailable)) | map(select(.profitPerHourDelta != 0 and .price != 0)) | sort_by(-(.profitPerHourDelta / .price))[:1] | .[0] | {id: .id, section: .section, price: .price, profitPerHourDelta: .profitPerHourDelta, cooldownSeconds: .cooldownSeconds}'
+        https://api.hamsterkombatgame.io/clicker/upgrades-for-buy | jq -r '.upgradesForBuy | map(select(.isExpired == false and .isAvailable)) | map(select(.profitPerHourDelta != 0 and .price != 0)) | sort_by(-(.profitPerHourDelta / .price))[:1] | .[0] | {id: .id, section: .section, price: .price, profitPerHourDelta: .profitPerHourDelta, cooldownSeconds: .cooldownSeconds}'
 }
 
 get_second_best_item() {
@@ -115,7 +115,7 @@ get_second_best_item() {
         -H "Sec-Fetch-Mode: cors" \
         -H "Sec-Fetch-Site: same-site" \
         -H "Priority: u=4" \
-        https://api.hamsterkombat.io/clicker/upgrades-for-buy | jq -r '.upgradesForBuy | map(select(.isExpired == false and.isAvailable)) | map(select(.profitPerHourDelta!= 0 and.price!= 0)) | sort_by(-(.profitPerHourDelta /.price))[:2] |.[1] | {id:.id, section:.section, price:.price, profitPerHourDelta:.profitPerHourDelta, cooldownSeconds:.cooldownSeconds}'
+        https://api.hamsterkombatgame.io/clicker/upgrades-for-buy | jq -r '.upgradesForBuy | map(select(.isExpired == false and.isAvailable)) | map(select(.profitPerHourDelta!= 0 and.price!= 0)) | sort_by(-(.profitPerHourDelta /.price))[:2] |.[1] | {id:.id, section:.section, price:.price, profitPerHourDelta:.profitPerHourDelta, cooldownSeconds:.cooldownSeconds}'
 }
 
 
@@ -208,7 +208,7 @@ main() {
             -H "Authorization: $Authorization" \
             -H "Origin: https://hamsterkombat.io" \
             -H "Referer: https://hamsterkombat.io/" \
-            https://api.hamsterkombat.io/clicker/sync | jq -r '.clickerUser.balanceCoins')
+            https://api.hamsterkombatgame.io/clicker/sync | jq -r '.clickerUser.balanceCoins')
 
         # Check if current balance is above the threshold after purchase
         if (( $(echo "$current_balance - $price > $min_balance_threshold" | bc -l) )); then
