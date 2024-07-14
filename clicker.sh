@@ -68,7 +68,7 @@ capacity=${capacity:-5000}
 
 while true; do
     Taps=$(curl -s -X POST \
-        https://api.hamsterkombat.io/clicker/sync \
+        https://api.hamsterkombatgame.io/clicker/sync \
         -H "Content-Type: application/json" \
         -H "Authorization: $Authorization" \
         -d '{}' | jq -r '.clickerUser.availableTaps')
@@ -77,7 +77,7 @@ while true; do
         echo "Taps are less than 30. Waiting to reach $capacity again..."
         while [ "$Taps" -lt $capacity ]; do
             Taps=$(curl -s -X POST \
-                https://api.hamsterkombat.io/clicker/sync \
+                https://api.hamsterkombatgame.io/clicker/sync \
                 -H "Content-Type: application/json" \
                 -H "Authorization: $Authorization" \
                 -d '{}' | jq -r '.clickerUser.availableTaps')
@@ -89,7 +89,7 @@ while true; do
     random_sleep=$(shuf -i 20-60 -n 1)
     sleep $(echo "scale=3; $random_sleep / 1000" | bc)
 
-    curl -s -X POST https://api.hamsterkombat.io/clicker/tap \
+    curl -s -X POST https://api.hamsterkombatgame.io/clicker/tap \
         -H "Content-Type: application/json" \
         -H "Authorization: $Authorization" \
         -d '{
