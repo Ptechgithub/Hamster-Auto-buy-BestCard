@@ -30,7 +30,7 @@ print(f"{Colors.PURPLE}============================{Colors.RESET}")
 # Function to purchase upgrade
 def purchase_upgrade(authorization, upgrade_id):
     timestamp = int(time() * 1000)
-    url = "https://api.hamsterkombat.io/clicker/buy-upgrade"
+    url = "https://api.hamsterkombatgame.io/clicker/buy-upgrade"
     headers = {
         "Content-Type": "application/json",
         "Authorization": authorization,
@@ -60,7 +60,7 @@ headers = {
 }
 
 # Get available upgrades
-response = post('https://api.hamsterkombat.io/clicker/upgrades-for-buy', headers=headers).json()
+response = post('https://api.hamsterkombatgame.io/clicker/upgrades-for-buy', headers=headers).json()
 
 class Node:
     def __init__(self, level, profit, weight, bound, selected):
@@ -159,7 +159,7 @@ for upgrade in upgrades_with_ratios:
 upgrades_num = int(input(f"{Colors.GREEN}Choice : {Colors.YELLOW}")) - 1
 
 # Get current balance
-url = "https://api.hamsterkombat.io/clicker/sync"
+url = "https://api.hamsterkombatgame.io/clicker/sync"
 response = post(url, headers=headers)
 current_balance = float(response.json()['clickerUser']['balanceCoins'])
 selected_upgrades = upgrades_with_ratios[upgrades_num]['selected_upgrades']
